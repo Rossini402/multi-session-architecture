@@ -1,0 +1,29 @@
+"use server";
+
+import { auth } from "@/auth";
+import { prisma } from "@/lib/prisma";
+import { revalidatePath } from "next/cache";
+
+export async function toggleFavorite(bookmarkId: string) {
+  const session = await auth();
+  if (!session?.user?.id) {
+    throw new Error("UNAUTHORIZED");
+  }
+  const userId = session.user.id;
+
+  const existing = await prisma.favorite.findUnique({
+    where: { userId_bookmarkId: { userId, bookmarkId } },
+  });
+
+  if (existing) {
+    await prisma.favorite.delete({ where: { id: existing.id } });
+    revalidatePath("/");
+    revalidatePath("/favorites");
+    return { isFavorite: false };
+  }
+
+  await prisma.favorite.create({ data: { userId, bookmarkId } });
+  revalidatePath("/");
+  revalidatePath("/favorites");
+  return { isFavorite: true };
+}
