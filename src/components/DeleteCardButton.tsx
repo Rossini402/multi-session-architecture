@@ -1,9 +1,9 @@
 "use client";
 
 import { useTransition } from "react";
-import { deleteBookmark } from "@/app/actions/bookmarks";
+import { deleteCard } from "@/app/actions/cards";
 
-export function DeleteBookmarkButton({
+export function DeleteCardButton({
   id,
   title,
 }: {
@@ -17,7 +17,7 @@ export function DeleteBookmarkButton({
       disabled={pending}
       onClick={() => {
         if (confirm(`确认删除「${title}」？`)) {
-          start(() => deleteBookmark(id));
+          start(() => deleteCard(id));
         }
       }}
       className="btn-ghost text-xs text-rose-500 hover:bg-rose-500/10"

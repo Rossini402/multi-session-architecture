@@ -8,19 +8,24 @@ export async function Nav() {
     <header className="border-b border-border bg-card/70 backdrop-blur sticky top-0 z-10">
       <div className="mx-auto max-w-5xl px-4 h-14 flex items-center justify-between">
         <Link href="/" className="font-semibold tracking-tight">
-          ✦ 我的收藏夹
+          ✦ 技术雷达
         </Link>
 
         <div className="flex items-center gap-2">
           {session?.user && (
             <Link href="/favorites" className="btn-ghost">
-              我的收藏
+              收藏
             </Link>
           )}
           {session?.user?.isAdmin && (
-            <Link href="/admin" className="btn-outline">
-              管理
-            </Link>
+            <>
+              <Link href="/library" className="btn-ghost">
+                私库
+              </Link>
+              <Link href="/admin" className="btn-outline">
+                管理
+              </Link>
+            </>
           )}
 
           {session?.user ? (

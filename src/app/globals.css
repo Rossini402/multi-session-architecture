@@ -47,4 +47,61 @@
   .label {
     @apply block text-xs font-medium text-muted mb-1;
   }
+
+  .prose-radar {
+    @apply text-[15px] leading-relaxed;
+  }
+  .prose-radar h1 {
+    @apply text-2xl font-semibold tracking-tight mt-8 mb-4 first:mt-0;
+  }
+  .prose-radar h2 {
+    @apply text-lg font-semibold mt-8 mb-3 pb-1 border-b border-border;
+  }
+  .prose-radar h3 {
+    @apply text-base font-semibold mt-5 mb-2 text-foreground/90;
+  }
+  .prose-radar p {
+    @apply my-3;
+  }
+  .prose-radar ul,
+  .prose-radar ol {
+    @apply my-3 pl-6;
+  }
+  .prose-radar ul {
+    @apply list-disc;
+  }
+  .prose-radar ol {
+    @apply list-decimal;
+  }
+  .prose-radar li {
+    @apply my-1;
+  }
+  .prose-radar li.task-list-item {
+    @apply list-none -ml-6;
+  }
+  .prose-radar code {
+    @apply px-1 py-0.5 rounded bg-border/50 text-[13px];
+  }
+  .prose-radar pre {
+    @apply my-4 p-3 rounded bg-card border border-border overflow-auto text-[13px];
+  }
+  .prose-radar pre code {
+    @apply bg-transparent p-0;
+  }
+  .prose-radar blockquote {
+    @apply border-l-2 border-accent/40 pl-3 text-muted my-3;
+  }
+  .prose-radar a {
+    @apply text-accent;
+  }
+  .prose-radar hr {
+    @apply my-6 border-border;
+  }
+  .prose-radar table {
+    @apply my-4 border-collapse text-sm;
+  }
+  .prose-radar th,
+  .prose-radar td {
+    @apply border border-border px-2 py-1;
+  }
 }

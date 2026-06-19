@@ -4,10 +4,10 @@ import { useState, useTransition } from "react";
 import { toggleFavorite } from "@/app/actions/favorites";
 
 export function FavoriteButton({
-  bookmarkId,
+  cardId,
   isFavorite,
 }: {
-  bookmarkId: string;
+  cardId: string;
   isFavorite: boolean;
 }) {
   const [active, setActive] = useState(isFavorite);
@@ -21,7 +21,7 @@ export function FavoriteButton({
       onClick={() => {
         setActive((v) => !v);
         start(async () => {
-          const res = await toggleFavorite(bookmarkId);
+          const res = await toggleFavorite(cardId);
           setActive(res.isFavorite);
         });
       }}

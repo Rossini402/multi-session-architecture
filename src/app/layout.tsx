@@ -3,8 +3,8 @@ import "./globals.css";
 import { Nav } from "@/components/Nav";
 
 export const metadata: Metadata = {
-  title: "我的收藏夹",
-  description: "记录好网站与学习资源",
+  title: "技术雷达",
+  description: "个人技术雷达 · AI 编程、Agent、IoT、前端工程化",
 };
 
 export default function RootLayout({

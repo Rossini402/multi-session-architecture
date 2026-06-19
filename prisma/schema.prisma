@@ -8,16 +8,16 @@ datasource db {
 }
 
 model User {
-  id            String     @id @default(cuid())
+  id            String          @id @default(cuid())
   name          String?
-  email         String     @unique
+  email         String          @unique
   emailVerified DateTime?
   image         String?
   accounts      Account[]
   sessions      Session[]
-  bookmarks     Bookmark[] @relation("CreatedBookmarks")
+  cards         KnowledgeCard[] @relation("CreatedCards")
   favorites     Favorite[]
-  createdAt     DateTime   @default(now())
+  createdAt     DateTime        @default(now())
 }
 
 model Account {
@@ -54,32 +54,47 @@ model VerificationToken {
   @@unique([identifier, token])
 }
 
-model Bookmark {
+// 个人技术雷达知识卡片
+// sourceType: github | x | article | video | tool | idea | manual
+// category:   github-project | ai-coding | frontend | iot | agent-engineering
+//             | context-engineering | product-thinking | content-idea | career
+//             | tool | thinking
+// priority:   P0 | P1 | P2 | P3
+model KnowledgeCard {
   id          String     @id @default(cuid())
   title       String
-  url         String
-  description String?
-  category    String?
+  sourceType  String     @default("manual")
+  sourceUrl   String?
+  category    String     @default("thinking")
   tags        String?
-  favicon     String?
+  score       Int        @default(0)
+  priority    String     @default("P2")
+  shouldSave  Boolean    @default(true)
+  publish     Boolean    @default(false)
+  summary     String?
+  body        String     @default("")
+  rawInput    String?
   createdById String
-  createdBy   User       @relation("CreatedBookmarks", fields: [createdById], references: [id])
+  createdBy   User       @relation("CreatedCards", fields: [createdById], references: [id])
   favorites   Favorite[]
   createdAt   DateTime   @default(now())
   updatedAt   DateTime   @updatedAt
 
   @@index([category])
+  @@index([sourceType])
+  @@index([priority])
+  @@index([publish])
   @@index([createdAt])
 }
 
 model Favorite {
-  id         String   @id @default(cuid())
-  userId     String
-  bookmarkId String
-  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  bookmark   Bookmark @relation(fields: [bookmarkId], references: [id], onDelete: Cascade)
-  createdAt  DateTime @default(now())
+  id        String        @id @default(cuid())
+  userId    String
+  cardId    String
+  user      User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  card      KnowledgeCard @relation(fields: [cardId], references: [id], onDelete: Cascade)
+  createdAt DateTime      @default(now())
 
-  @@unique([userId, bookmarkId])
+  @@unique([userId, cardId])
   @@index([userId])
 }

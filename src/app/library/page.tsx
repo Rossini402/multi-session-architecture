@@ -1,10 +1,10 @@
 import { auth } from "@/auth";
+import { redirect } from "next/navigation";
 import { CardItem } from "@/components/CardItem";
 import { CardFilters } from "@/components/CardFilters";
 import { listCards, listFilterFacets } from "@/lib/cards";
-import Link from "next/link";
 
-export default async function HomePage({
+export default async function LibraryPage({
   searchParams,
 }: {
   searchParams: Promise<{
@@ -15,35 +15,43 @@ export default async function HomePage({
   }>;
 }) {
   const session = await auth();
+  if (!session?.user) redirect("/login?callbackUrl=/library");
+  if (!session.user.isAdmin) {
+    return (
+      <div className="rounded-lg border border-border p-8 text-center">
+        <p className="text-muted">私库仅管理员可见</p>
+      </div>
+    );
+  }
+
   const { q, category, sourceType, priority } = await searchParams;
 
   const [cards, facets] = await Promise.all([
     listCards({
-      userId: session?.user?.id,
+      userId: session.user.id,
       q,
       category,
       sourceType,
       priority,
-      publishedOnly: true,
+      savedOnly: true,
     }),
-    listFilterFacets("public"),
+    listFilterFacets("library"),
   ]);
 
   return (
     <div className="space-y-6">
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight">技术雷达</h1>
+          <h1 className="text-2xl font-semibold tracking-tight">私库</h1>
           <p className="text-sm text-muted mt-1">
-            {cards.length} 张知识卡片 · 按优先级排序
+            {cards.length} 张已入库（含未公开）· 按优先级排序
           </p>
         </div>
-
         <form className="flex gap-2">
           <input
             name="q"
             defaultValue={q}
-            placeholder="搜索标题、摘要、正文、标签…"
+            placeholder="搜索…"
             className="input max-w-xs"
           />
           {category && <input type="hidden" name="category" value={category} />}
@@ -58,14 +66,16 @@ export default async function HomePage({
       </div>
 
       <CardFilters
-        basePath="/"
+        basePath="/library"
         facets={facets}
         active={{ category, sourceType, priority }}
         keepQuery={{ q }}
       />
 
       {cards.length === 0 ? (
-        <EmptyState isAdmin={!!session?.user?.isAdmin} />
+        <div className="rounded-lg border border-dashed border-border p-12 text-center text-muted">
+          私库为空
+        </div>
       ) : (
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
           {cards.map((c) => (
@@ -73,23 +83,11 @@ export default async function HomePage({
               key={c.id}
               card={c}
               isFavorite={c.isFavorite}
-              canFavorite={!!session?.user}
+              canFavorite
+              showAdminHint
             />
           ))}
         </div>
-      )}
-    </div>
-  );
-}
-
-function EmptyState({ isAdmin }: { isAdmin: boolean }) {
-  return (
-    <div className="rounded-lg border border-dashed border-border p-12 text-center">
-      <p className="text-muted">还没有公开的卡片</p>
-      {isAdmin && (
-        <Link href="/admin/new" className="btn-primary mt-4">
-          添加第一张卡片
-        </Link>
       )}
     </div>
   );

@@ -2,7 +2,8 @@ import { auth } from "@/auth";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
-import { DeleteBookmarkButton } from "@/components/DeleteBookmarkButton";
+import { DeleteCardButton } from "@/components/DeleteCardButton";
+import { PriorityBadge, ScoreBadge } from "@/components/Badges";
 
 export default async function AdminPage() {
   const session = await auth();
@@ -15,7 +16,7 @@ export default async function AdminPage() {
     );
   }
 
-  const bookmarks = await prisma.bookmark.findMany({
+  const cards = await prisma.knowledgeCard.findMany({
     orderBy: { createdAt: "desc" },
   });
 
@@ -24,7 +25,7 @@ export default async function AdminPage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-semibold tracking-tight">管理</h1>
-          <p className="text-sm text-muted mt-1">{bookmarks.length} 条收藏</p>
+          <p className="text-sm text-muted mt-1">{cards.length} 张卡片</p>
         </div>
         <Link href="/admin/new" className="btn-primary">
           + 新增
@@ -39,54 +40,82 @@ export default async function AdminPage() {
               <th className="text-left px-4 py-2 font-medium hidden md:table-cell">
                 分类
               </th>
+              <th className="text-left px-4 py-2 font-medium hidden md:table-cell">
+                来源
+              </th>
               <th className="text-left px-4 py-2 font-medium hidden lg:table-cell">
-                创建时间
+                优先 / 分
+              </th>
+              <th className="text-left px-4 py-2 font-medium hidden lg:table-cell">
+                状态
               </th>
               <th className="px-4 py-2"></th>
             </tr>
           </thead>
           <tbody>
-            {bookmarks.map((b) => (
-              <tr key={b.id} className="border-t border-border">
+            {cards.map((c) => (
+              <tr key={c.id} className="border-t border-border">
                 <td className="px-4 py-3">
-                  <div className="font-medium">{b.title}</div>
-                  <a
-                    href={b.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-xs text-muted hover:text-accent truncate block max-w-md"
+                  <Link
+                    href={`/cards/${c.id}`}
+                    className="font-medium hover:text-accent"
                   >
-                    {b.url}
-                  </a>
+                    {c.title}
+                  </Link>
+                  {c.summary && (
+                    <div className="text-xs text-muted line-clamp-1 mt-0.5">
+                      {c.summary}
+                    </div>
+                  )}
                 </td>
-                <td className="px-4 py-3 hidden md:table-cell text-muted">
-                  {b.category ?? "—"}
+                <td className="px-4 py-3 hidden md:table-cell text-muted text-xs">
+                  {c.category}
                 </td>
-                <td className="px-4 py-3 hidden lg:table-cell text-muted text-xs">
-                  {b.createdAt.toLocaleDateString("zh-CN")}
+                <td className="px-4 py-3 hidden md:table-cell text-muted text-xs">
+                  {c.sourceType}
+                </td>
+                <td className="px-4 py-3 hidden lg:table-cell">
+                  <div className="flex items-center gap-1.5">
+                    <PriorityBadge priority={c.priority} />
+                    <ScoreBadge score={c.score} />
+                  </div>
+                </td>
+                <td className="px-4 py-3 hidden lg:table-cell text-xs">
+                  <div className="flex flex-col gap-0.5">
+                    <span className={c.shouldSave ? "" : "text-muted"}>
+                      {c.shouldSave ? "已入库" : "未入库"}
+                    </span>
+                    <span
+                      className={
+                        c.publish ? "text-emerald-500" : "text-muted"
+                      }
+                    >
+                      {c.publish ? "已发布" : "草稿"}
+                    </span>
+                  </div>
                 </td>
                 <td className="px-4 py-3 text-right">
                   <div className="inline-flex gap-1">
                     <Link
-                      href={`/admin/${b.id}/edit`}
+                      href={`/admin/${c.id}/edit`}
                       className="btn-ghost text-xs"
                     >
                       编辑
                     </Link>
-                    <DeleteBookmarkButton id={b.id} title={b.title} />
+                    <DeleteCardButton id={c.id} title={c.title} />
                   </div>
                 </td>
               </tr>
             ))}
-            {bookmarks.length === 0 && (
+            {cards.length === 0 && (
               <tr>
                 <td
-                  colSpan={4}
+                  colSpan={6}
                   className="px-4 py-8 text-center text-muted text-sm"
                 >
-                  还没有任何收藏，
+                  还没有卡片，
                   <Link href="/admin/new" className="text-accent">
-                    添加一个
+                    添加第一张
                   </Link>
                 </td>
               </tr>

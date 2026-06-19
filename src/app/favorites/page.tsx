@@ -1,7 +1,7 @@
 import { auth } from "@/auth";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
-import { BookmarkCard } from "@/components/BookmarkCard";
+import { CardItem } from "@/components/CardItem";
 
 export default async function FavoritesPage() {
   const session = await auth();
@@ -10,14 +10,14 @@ export default async function FavoritesPage() {
   const favorites = await prisma.favorite.findMany({
     where: { userId: session.user.id },
     orderBy: { createdAt: "desc" },
-    include: { bookmark: true },
+    include: { card: true },
   });
 
   return (
     <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-semibold tracking-tight">我的收藏</h1>
-        <p className="text-sm text-muted mt-1">{favorites.length} 个</p>
+        <p className="text-sm text-muted mt-1">{favorites.length} 张</p>
       </div>
 
       {favorites.length === 0 ? (
@@ -27,9 +27,9 @@ export default async function FavoritesPage() {
       ) : (
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
           {favorites.map((f) => (
-            <BookmarkCard
+            <CardItem
               key={f.id}
-              bookmark={f.bookmark}
+              card={f.card}
               isFavorite
               canFavorite
             />
